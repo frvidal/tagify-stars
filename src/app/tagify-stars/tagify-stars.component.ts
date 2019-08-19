@@ -19,6 +19,10 @@ export class TagifyStarsComponent implements AfterViewInit {
 
   @Input() placeholder;
 
+  @Input() colorON;
+
+  @Input() colorOFF;
+
   @Output() addTagEvent = new EventEmitter<TagStar>();
 
   @Output() removeTagEvent = new EventEmitter<string>();
@@ -44,15 +48,14 @@ export class TagifyStarsComponent implements AfterViewInit {
       placeholder: this.placeholder,
       templates: {
         wrapper(input, settings) {
-          console.log (settings);
           return `<tags style="height:99%;width:99%;margin:1px;"
                 class="tagify ${settings.mode ? 'tagify--mix' : ''} ${input.className}" ${settings.readonly ? 'readonly' : ''}>
                 <span contenteditable data-placeholder="${settings.placeholder}" class="tagify__input"></span></tags>`;
         },
         tag(v, tagData) {
-          return `<tag title='${v}' contenteditable='false' spellcheck="false" class='tagify__tag
+          return `<tag title='${v}' scontenteditable='false' spellcheck="false" class='tagify__tag
               ${tagData.class ? tagData.class : ''}' ${this.getAttributes(tagData)}>
-                <x title='' class='tagify__tag__removeBtn'></x><div><span class='tagify__tag-text'>
+                <x title='' class='tagify__tag__removeBtn'></x><div style="background-color:lightGrey" ><span class='tagify__tag-text'>
                   ${v}
                   <i class="fas fa-star" id='tag-star-${v}-0'></i>
                   <i class="fas fa-star" id='tag-star-${v}-1'></i>
@@ -81,10 +84,10 @@ export class TagifyStarsComponent implements AfterViewInit {
     this.tagify.addTags(this.originalValues.map(tagStar => tagStar.tag));
     this.originalValues.forEach(tagStar => {
       for (let i = 0; i <= tagStar.star; i++) {
-        this.setColor(tagStar.tag, i, 'yellow');
+        this.setColor(tagStar.tag, i, this.colorON);
       }
       for (let i = tagStar.star + 1; i < 5; i++) {
-        this.setColor(tagStar.tag, i, 'dark');
+        this.setColor(tagStar.tag, i, this.colorOFF);
       }
     });
 
@@ -127,7 +130,7 @@ export class TagifyStarsComponent implements AfterViewInit {
       const id = this.idStar(e.detail.data.value, i);
       document.getElementById(id).onclick = this.boundOnClick[i];
     }
-    this.setColor(e.detail.data.value, 0, 'yellow');
+    this.setColor(e.detail.data.value, 0, this.colorON);
     this.addTagEvent.emit(new TagStar(e.detail.data.value, 0));
   }
 
@@ -148,10 +151,10 @@ export class TagifyStarsComponent implements AfterViewInit {
   onTagClick(e: CustomEvent) {
     const tag = e.detail.data.value;
     for (let i = 0; i <= this.star; i++) {
-      this.setColor(tag, i, 'yellow');
+      this.setColor(tag, i, this.colorON);
     }
     for (let i = this.star + 1; i < 5; i++) {
-      this.setColor(tag, i, 'dark');
+      this.setColor(tag, i, this.colorOFF);
     }
     this.addTagEvent.emit(new TagStar(tag, this.star));
     this.star = 0;
