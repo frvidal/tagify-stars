@@ -3,6 +3,7 @@ import Tagify from '@yaireo/tagify';
 import { TagStar } from '../tag-star';
 import { Placeholder } from '@angular/compiler/src/i18n/i18n_ast';
 import { mapToMapExpression } from '@angular/compiler/src/render3/util';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-tagify-stars',
@@ -17,6 +18,8 @@ export class TagifyStarsComponent implements AfterViewInit {
 
   @Input() originalValues;
 
+  @Input() additionalValues$: Subject<TagStar[]>;
+
   @Input() placeholder;
 
   @Input() colorON;
@@ -25,9 +28,13 @@ export class TagifyStarsComponent implements AfterViewInit {
 
   @Output() addTagEvent = new EventEmitter<TagStar>();
 
+  @Output() editTagEvent = new EventEmitter<TagStar>();
+
   @Output() removeTagEvent = new EventEmitter<string>();
 
   tagify: Tagify;
+
+  boundOnAddTag: any;
 
   input: any;
 
@@ -81,8 +88,24 @@ export class TagifyStarsComponent implements AfterViewInit {
     this.boundOnClick[3] = this.onClick_3.bind(this);
     this.boundOnClick[4] = this.onClick_4.bind(this);
 
-    this.tagify.addTags(this.originalValues.map(tagStar => tagStar.tag));
-    this.originalValues.forEach(tagStar => {
+    this.addValues (this.originalValues);
+
+    this.boundOnAddTag = this.onAddTag.bind(this);
+
+    // Chainable event listeners
+    this.tagify.on('add', this.boundOnAddTag)
+      .on('remove', this.onRemoveTag.bind(this))
+      .on('click', this.onTagClick.bind(this));
+
+    this.updateStars();
+
+    this.additionalValues$.subscribe(addedValues => this.addValues (addedValues));
+  }
+
+  private addValues(values: TagStar[]) {
+    this.tagify.off('add', this.boundOnAddTag);
+    this.tagify.addTags(values.map(tagStar => tagStar.tag));
+    values.forEach(tagStar => {
       for (let i = 0; i <= tagStar.star; i++) {
         this.setColor(tagStar.tag, i, this.colorON);
       }
@@ -90,14 +113,7 @@ export class TagifyStarsComponent implements AfterViewInit {
         this.setColor(tagStar.tag, i, this.colorOFF);
       }
     });
-
-    // Chainable event listeners
-    this.tagify.on('add', this.onAddTag.bind(this))
-      .on('remove', this.onRemoveTag.bind(this))
-      .on('click', this.onTagClick.bind(this));
-
-    this.updateStars();
-
+    this.tagify.on('add', this.boundOnAddTag);
   }
 
   /**
@@ -146,8 +162,6 @@ export class TagifyStarsComponent implements AfterViewInit {
     this.removeTagEvent.emit(e.detail.data.value);
   }
 
-
-  // invalid tag added callback
   onTagClick(e: CustomEvent) {
     const tag = e.detail.data.value;
     for (let i = 0; i <= this.star; i++) {
@@ -156,7 +170,7 @@ export class TagifyStarsComponent implements AfterViewInit {
     for (let i = this.star + 1; i < 5; i++) {
       this.setColor(tag, i, this.colorOFF);
     }
-    this.addTagEvent.emit(new TagStar(tag, this.star));
+    this.editTagEvent.emit(new TagStar(tag, this.star));
     this.star = 0;
   }
 
