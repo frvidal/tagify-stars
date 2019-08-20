@@ -88,7 +88,7 @@ export class TagifyStarsComponent implements AfterViewInit {
     this.boundOnClick[3] = this.onClick_3.bind(this);
     this.boundOnClick[4] = this.onClick_4.bind(this);
 
-    this.addValues (this.originalValues);
+    this.addValues(this.originalValues);
 
     this.boundOnAddTag = this.onAddTag.bind(this);
 
@@ -97,9 +97,12 @@ export class TagifyStarsComponent implements AfterViewInit {
       .on('remove', this.onRemoveTag.bind(this))
       .on('click', this.onTagClick.bind(this));
 
-    this.updateStars();
+    this.updateStars(this.originalValues);
 
-    this.additionalValues$.subscribe(addedValues => this.addValues (addedValues));
+    this.additionalValues$.subscribe(addedValues => {
+      this.addValues(addedValues);
+      this.updateStars(addedValues);
+    });
   }
 
   private addValues(values: TagStar[]) {
@@ -128,10 +131,10 @@ export class TagifyStarsComponent implements AfterViewInit {
   /**
    * Register an event handler for each star in the component.
    */
-  updateStars() {
-    this.tagify.value.forEach(tag => {
+  updateStars(tagStars: TagStar[]) {
+    tagStars.forEach(tagstar => {
       for (let i = 0; i < 5; i++) {
-        const id = this.idStar(tag.value, i);
+        const id = this.idStar(tagstar.tag, i);
         document.getElementById(id).onclick = this.boundOnClick[i];
       }
     });
