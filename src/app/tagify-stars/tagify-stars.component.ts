@@ -16,8 +16,19 @@ export class TagifyStarsComponent implements AfterViewInit {
 
   @Input() blacklist;
 
+  /**
+   * First values to put inside the component.
+   */
   @Input() originalValues;
 
+  /**
+   * New values to replace the current content inside the component.
+   */
+  @Input() values$: Subject<TagStar[]>;
+
+  /**
+   * Additional data to be added in the component.
+   */
   @Input() additionalValues$: Subject<TagStar[]>;
 
   @Input() readOnly$: BehaviorSubject<boolean>;
@@ -37,6 +48,7 @@ export class TagifyStarsComponent implements AfterViewInit {
   tagify: Tagify;
 
   boundOnAddTag: any;
+  boundOnRemoveTag: any;
 
   input: any;
 
@@ -95,6 +107,7 @@ export class TagifyStarsComponent implements AfterViewInit {
     this.addValues(this.originalValues);
 
     this.boundOnAddTag = this.onAddTag.bind(this);
+    this.boundOnRemoveTag = this.onRemoveTag.bind(this);
 
     // Chainable event listeners
     this.tagify.on('add', this.boundOnAddTag)
@@ -108,6 +121,12 @@ export class TagifyStarsComponent implements AfterViewInit {
       this.updateEventHandlerStars(addedValues);
     });
 
+    this.values$.subscribe(values => {
+      this.removeValues();
+      this.addValues(values);
+      this.updateEventHandlerStars(values);
+    });
+
     this.readOnly$.subscribe(readOnly => {
       this.readOnly = readOnly;
 
@@ -119,6 +138,12 @@ export class TagifyStarsComponent implements AfterViewInit {
       );
 
     });
+  }
+
+  private removeValues() {
+    this.tagify.off('remove', this.boundOnRemoveTag);
+    this.tagify.removeAllTags();
+    this.tagify.on('remove', this.boundOnRemoveTag);
   }
 
   private addValues(values: TagStar[]) {

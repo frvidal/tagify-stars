@@ -19,6 +19,8 @@ export class AppComponent implements OnInit {
 
   public additionalValues$ = new Subject<TagStar[]>();
 
+  public values$ = new Subject<TagStar[]>();
+
   public readOnly$ = new BehaviorSubject<boolean>(false);
 
   ngOnInit() {
@@ -26,6 +28,9 @@ export class AppComponent implements OnInit {
     setTimeout( () => this.additionalValues$.next(tagStars), 5000);
     setTimeout( () => this.readOnly$.next(true), 10000);
     setTimeout( () => this.readOnly$.next(false), 15000);
+
+    const tagStars2 = [{tag : 'Java', star: 3}];
+    setTimeout( () => this.values$.next(tagStars2), 20000);
   }
 
   onAddTagEvent(tagStar: TagStar) {
