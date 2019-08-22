@@ -1,6 +1,6 @@
 import { Component, AfterViewInit, OnInit } from '@angular/core';
 import { TagStar } from './tag-star';
-import { Subject } from 'rxjs';
+import { Subject, BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -19,9 +19,13 @@ export class AppComponent implements OnInit {
 
   public additionalValues$ = new Subject<TagStar[]>();
 
+  public readOnly$ = new BehaviorSubject<boolean>(false);
+
   ngOnInit() {
     const tagStars = [{tag : 'Spring', star: 1}, {tag : 'JUnit', star: 0}];
-    setTimeout( () => this.additionalValues$.next(tagStars), 10000);
+    setTimeout( () => this.additionalValues$.next(tagStars), 5000);
+    setTimeout( () => this.readOnly$.next(true), 10000);
+    setTimeout( () => this.readOnly$.next(false), 15000);
   }
 
   onAddTagEvent(tagStar: TagStar) {
