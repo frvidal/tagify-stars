@@ -72,7 +72,8 @@ export class TagifyStarsComponent implements AfterViewInit {
       templates: {
         wrapper(input, settings) {
           return `<tags
-                class="tagify ${settings.mode ? 'tagify--mix' : ''} ${input.className}" ${settings.readonly ? 'readonly' : ''}>
+                class="tagify ${settings.mode ? 'tagify--mix' : ''} ${input.className}" ${settings.readonly ? 'readonly' : ''}
+                style="min-height:40px">
                 <span id="tag-input" contenteditable data-placeholder="${settings.placeholder}" class="tagify__input"></span></tags>`;
         },
         tag(v, tagData) {
@@ -94,7 +95,9 @@ export class TagifyStarsComponent implements AfterViewInit {
     }
     );
 
+    this.tagify.settings.whitelist = [];
     this.whitelist.forEach(element => this.tagify.settings.whitelist.push(element));
+    this.tagify.settings.blacklist = [];
     this.blacklist.forEach(element => this.tagify.settings.blacklist.push(element));
     this.tagify.settings.placeholder = '';
 
